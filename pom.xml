@@ -14,7 +14,7 @@
 	<name>demo</name>
 	<description>Demo project for Spring Boot</description>
 	<properties>
-		<java.version>11</java.version>
+		<java.version>15 </java.version>
 	</properties>
 	<dependencies>
 
@@ -72,13 +72,107 @@
 		</dependency>
 	</dependencies>
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-			</plugin>
-		</plugins>
-	</build>
+
+	<profiles>
+		<profile>
+			<id>build-frontend</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>com.github.eirslett</groupId>
+						<artifactId>frontend-maven-plugin</artifactId>
+						<!-- Use the latest released version:
+                                  https://repo1.maven.org/maven2/com/github/eirslett/frontend-maven-plugin/ -->
+						<version>1.11.2</version>
+						<configuration>
+							<nodeVersion>v4.6.0</nodeVersion>
+							<workingDirectory>C:/Users/Admin/frontend</workingDirectory>
+						</configuration>
+						<executions>
+							<execution>
+								<id>install node and npm</id>
+								<goals>
+									<goal>install-node-and-npm</goal>
+								</goals>
+								<configuration>
+									<nodeVersion>v15.4.0</nodeVersion>
+									<npmVersion>7.3.0</npmVersion>
+								</configuration>
+							</execution>
+							<execution>
+								<id>npm install</id>
+								<goals>
+									<goal>npm</goal>
+								</goals>
+								<configuration>
+									<arguments>install</arguments>
+								</configuration>
+							</execution>
+							<execution>
+								<id>npm run build</id>
+								<goals>
+									<goal>npm</goal>
+								</goals>
+								<configuration>
+									<arguments>run build</arguments>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-jar-plugin</artifactId>
+						<version>3.1.0</version>
+						<executions>
+							<execution>
+								<id>copy-build-folder</id>
+								<phase>process-classes</phase>
+								<goals>
+									<goal>copy-resources</goal>
+								</goals>
+								<configuration>
+									<archive>
+										<manifest>
+											<addClasspath>true</addClasspath>
+											<mainClass>C:/Users/Admin/Desktop/demo/src/main/java/com/example/demo/DemoApplication.java</mainClass>
+										</manifest>
+									</archive>
+									<resources>
+										<resource>
+											<directory>C:/Users/Admin/frontend/build</directory>
+										</resource>
+									</resources>
+									<outputDirectory>${basedir}/target/classes/static</outputDirectory>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+
+					<plugin>
+						<groupId>com.google.cloud.tools</groupId>
+						<artifactId>jib-maven-plugin</artifactId>
+						<version>2.5.2</version>
+						<configuration>
+							<from>
+								<image>openjdk:15</image>
+							</from>
+							<container>
+								<ports>
+									<port>8080</port>
+								</ports>
+								<format>OCI</format>
+							</container>
+						</configuration>
+					</plugin>
+
+				</plugins>
+			</build>
+
+		</profile>
+	</profiles>
 
 </project>
